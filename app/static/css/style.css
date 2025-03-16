@@ -1,0 +1,62 @@
+/* Custom styles for LinkedIn Post Formatter */
+
+body {
+    background-color: #f8f9fa;
+}
+
+.linkedin-preview {
+    background-color: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    min-height: 200px;
+}
+
+.formatted-content {
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.5;
+}
+
+.formatted-content p {
+    margin-bottom: 1rem;
+}
+
+/* Custom styling for the emoji picker */
+.emoji-btn {
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+
+.emoji-btn:hover {
+    transform: scale(1.2);
+}
+
+/* Custom styling for the arrow buttons */
+.arrow-btn {
+    font-size: 1.2rem;
+    min-width: 40px;
+    cursor: pointer;
+    transition: transform 0.1s, background-color 0.2s;
+}
+
+.arrow-btn:hover {
+    transform: scale(1.2);
+    background-color: #e9ecef;
+}
+
+/* Make the cards equal height */
+.card {
+    height: 100%;
+    transition: box-shadow 0.3s;
+}
+
+.card:hover {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .btn-toolbar .btn-group {
+        margin-bottom: 0.5rem;
+    }
+}
