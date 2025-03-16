@@ -20,6 +20,71 @@ body {
     margin-bottom: 1rem;
 }
 
+/* Rich Text Editor Styles */
+.rich-text-editor {
+    min-height: 200px;
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    background-color: white;
+    color: #212529;
+    font-size: 1rem;
+    line-height: 1.5;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.rich-text-editor:focus {
+    border-color: #86b7fe;
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* LinkedIn-compatible formatting */
+.rich-text-editor b,
+.rich-text-editor strong {
+    font-weight: bold !important;
+}
+
+.rich-text-editor em,
+.rich-text-editor i {
+    font-style: italic !important;
+}
+
+.rich-text-editor u {
+    text-decoration: underline !important;
+}
+
+/* Font styles */
+[style*="font-family: Arial"] {
+    font-family: Arial, sans-serif !important;
+}
+
+[style*="font-family: Helvetica"] {
+    font-family: Helvetica, sans-serif !important;
+}
+
+[style*="font-family: Times New Roman"] {
+    font-family: 'Times New Roman', Times, serif !important;
+}
+
+[style*="font-family: Courier New"] {
+    font-family: 'Courier New', Courier, monospace !important;
+}
+
+[style*="font-family: Georgia"] {
+    font-family: Georgia, serif !important;
+}
+
+[style*="font-family: Verdana"] {
+    font-family: Verdana, Geneva, sans-serif !important;
+}
+
+[style*="font-family: Tahoma"] {
+    font-family: Tahoma, Geneva, sans-serif !important;
+}
+
 /* Custom styling for the emoji picker */
 .emoji-btn {
     font-size: 1.2rem;
@@ -29,19 +94,6 @@ body {
 
 .emoji-btn:hover {
     transform: scale(1.2);
-}
-
-/* Custom styling for the arrow buttons */
-.arrow-btn {
-    font-size: 1.2rem;
-    min-width: 40px;
-    cursor: pointer;
-    transition: transform 0.1s, background-color 0.2s;
-}
-
-.arrow-btn:hover {
-    transform: scale(1.2);
-    background-color: #e9ecef;
 }
 
 /* Make the cards equal height */

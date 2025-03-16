@@ -3,26 +3,22 @@
 const app = Vue.createApp({
     data() {
         return {
-            postContent: '',
-            formattedContent: '',
+            editorContent: '',
+            characterCount: 0,
             showEmojiPicker: false,
-            showArrowPicker: false,
             copySuccess: false,
             selectedTemplate: '',
+            activeFormats: {
+                bold: false,
+                italic: false,
+                underline: false
+            },
 
             // Common emojis for quick access
             commonEmojis: [
                 '👍', '👏', '🔥', '💡', '✅', '⭐', '🚀', '💪',
                 '📊', '📈', '🎯', '🏆', '💼', '📝', '🔍', '🤔',
                 '😊', '🙌', '👉', '🌟', '📢', '🔔', '📌', '🎉'
-            ],
-
-            // Arrow options
-            arrowOptions: [
-                '→', '⟶', '⇒', '⟹', '⇨', '⇢', '➔', '➜', '➙', '➛', '➝', '➞', '➟', '➠', '➡', '➢', '➣', '➤', '➥', '➦',
-                '↑', '⟰', '⇑', '⇧', '⇪', '⇮', '⇯', '⤊', '⤴', '↿', '⥣', '⥘', '⥜', '↾', '↥', '↨', '⍐', '⬆',
-                '↓', '⟱', '⇓', '⇩', '⇪', '⇯', '⤋', '⤵', '⇟', '⥥', '⥙', '⥝', '⥡', '↧', '↨', '⍗', '⬇',
-                '↔', '↕', '⟷', '⟺', '⇔', '⇕', '⇦', '⇄', '⇆', '⇋', '⇌', '⇹', '⇼', '⥊', '⥋', '⥌', '⥍', '⥎', '⥏'
             ],
 
             // Post templates
@@ -82,179 +78,125 @@ Share your thoughts in the comments below!
         }
     },
 
-    computed: {
-        characterCount() {
-            return this.postContent.length;
-        }
-    },
-
     methods: {
-        // Update the formatted content in real-time
-        updateFormattedContent() {
-            // Basic conversion of line breaks to HTML
-            let formatted = this.postContent
-                .replace(/\n/g, '<br>')
-                .replace(/\s\s/g, '&nbsp;&nbsp;');
-
-            this.formattedContent = formatted;
+        // Update the content from the editor
+        updateContent() {
+            this.editorContent = this.$refs.editor.innerHTML;
+            this.updateCharCount();
+            this.checkActiveFormats();
         },
 
-        // Apply different formatting options
-        applyFormatting(type) {
-            // Get the textarea element
-            const textarea = document.querySelector('textarea');
-            const start = textarea.selectionStart;
-            const end = textarea.selectionEnd;
-            const selectedText = this.postContent.substring(start, end);
-
-            let formattedText = '';
-
-            switch (type) {
-                case 'bold':
-                    // Using special Unicode characters for "bold" effect
-                    formattedText = this.convertToBold(selectedText);
-                    break;
-
-                case 'italic':
-                    // Using special Unicode characters for "italic" effect
-                    formattedText = this.convertToItalic(selectedText);
-                    break;
-
-                case 'bullet':
-                    // Add bullet point
-                    formattedText = '• ' + selectedText;
-                    break;
-
-                case 'arrow':
-                    // Show arrow picker instead of inserting default arrow
-                    this.showArrowPicker = true;
-                    return;
-
-                case 'separator':
-                    // Add separator line
-                    formattedText = '\n───────────────\n';
-                    break;
-            }
-
-            // Replace the selected text with the formatted text
-            this.postContent =
-                this.postContent.substring(0, start) +
-                formattedText +
-                this.postContent.substring(end);
-
-            // Update the formatted content
-            this.updateFormattedContent();
-
-            // Focus back on the textarea
-            this.$nextTick(() => {
-                textarea.focus();
-                textarea.setSelectionRange(
-                    start + formattedText.length,
-                    start + formattedText.length
-                );
-            });
+        // Update character count
+        updateCharCount() {
+            // Get text content without HTML tags for character count
+            const textContent = this.$refs.editor.textContent || '';
+            this.characterCount = textContent.length;
         },
 
-        // Convert text to "bold" using Unicode characters
-        convertToBold(text) {
-            if (!text) return '';
-
-            // Mathematical Sans-Serif Bold characters (more compatible)
-            const normalChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-            const boldChars = '𝗔𝗕𝗖𝗗𝗘𝗙𝗚𝗛𝗜𝗝𝗞𝗟𝗠𝗡𝗢𝗣𝗤𝗥𝗦𝗧𝗨𝗩𝗪𝗫𝗬𝗭𝗮𝗯𝗰𝗱𝗲𝗳𝗴𝗵𝗶𝗷𝗸𝗹𝗺𝗻𝗼𝗽𝗾𝗿𝘀𝘁𝘂𝘃𝘄𝘅𝘆𝘇𝟬𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵';
-
-            let result = '';
-            for (let i = 0; i < text.length; i++) {
-                const char = text[i];
-                const index = normalChars.indexOf(char);
-                if (index !== -1) {
-                    result += boldChars[index];
-                } else {
-                    result += char;
-                }
-            }
-
-            return result;
+        // Check which formats are currently active
+        checkActiveFormats() {
+            this.activeFormats.bold = document.queryCommandState('bold');
+            this.activeFormats.italic = document.queryCommandState('italic');
+            this.activeFormats.underline = document.queryCommandState('underline');
         },
 
-        // Convert text to "italic" using Unicode characters
-        convertToItalic(text) {
-            if (!text) return '';
+        // Execute formatting commands
+        execCommand(command) {
+            document.execCommand(command, false, null);
 
-            // Mathematical Sans-Serif Italic characters (more compatible)
-            const normalChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-            const italicChars = '𝘈𝘉𝘊𝘋𝘌𝘍𝘎𝘏𝘐𝘑𝘒𝘓𝘔𝘕𝘖𝘗𝘘𝘙𝘚𝘛𝘜𝘝𝘞𝘟𝘠𝘡𝘢𝘣𝘤𝘥𝘦𝘧𝘨𝘩𝘪𝘫𝘬𝘭𝘮𝘯𝘰𝘱𝘲𝘳𝘴𝘵𝘶𝘷𝘸𝘹𝘺𝘻';
-
-            let result = '';
-            for (let i = 0; i < text.length; i++) {
-                const char = text[i];
-                const index = normalChars.indexOf(char);
-                if (index !== -1) {
-                    result += italicChars[index];
-                } else {
-                    result += char;
-                }
+            // For specific commands, ensure we use LinkedIn-compatible tags
+            if (command === 'italic') {
+                // Convert any <i> tags to <em> for better LinkedIn compatibility
+                const italicElements = this.$refs.editor.querySelectorAll('i');
+                italicElements.forEach(el => {
+                    const em = document.createElement('em');
+                    em.innerHTML = el.innerHTML;
+                    el.parentNode.replaceChild(em, el);
+                });
+            } else if (command === 'underline') {
+                // Ensure underlines use <u> tag instead of text-decoration
+                const styledElements = this.$refs.editor.querySelectorAll('[style*="text-decoration: underline"]');
+                styledElements.forEach(el => {
+                    const u = document.createElement('u');
+                    u.innerHTML = el.innerHTML;
+                    el.parentNode.replaceChild(u, el);
+                });
             }
 
-            return result;
+            this.$refs.editor.focus();
+            this.updateContent();
+        },
+
+        // Execute commands with arguments
+        execCommandWithArg(command, arg) {
+            if (arg) {
+                document.execCommand(command, false, arg);
+                this.$refs.editor.focus();
+                this.updateContent();
+            }
         },
 
         // Insert emoji at cursor position
         insertEmoji(emoji) {
-            const textarea = document.querySelector('textarea');
-            const start = textarea.selectionStart;
-
-            this.postContent =
-                this.postContent.substring(0, start) +
-                emoji +
-                this.postContent.substring(start);
-
-            this.updateFormattedContent();
+            // Insert at cursor position
+            this.insertTextAtCursor(emoji);
 
             // Hide emoji picker after selection
             this.showEmojiPicker = false;
 
-            // Focus back on the textarea
-            this.$nextTick(() => {
-                textarea.focus();
-                textarea.setSelectionRange(start + emoji.length, start + emoji.length);
-            });
+            // Focus back on the editor
+            this.$refs.editor.focus();
         },
 
-        // Insert arrow at cursor position or before selected text
-        insertArrow(arrow) {
-            const textarea = document.querySelector('textarea');
-            const start = textarea.selectionStart;
-            const end = textarea.selectionEnd;
-            const selectedText = this.postContent.substring(start, end);
+        // Insert text at cursor position
+        insertTextAtCursor(text) {
+            const selection = window.getSelection();
+            const range = selection.getRangeAt(0);
 
-            let newText;
-            if (selectedText) {
-                // If text is selected, add arrow before it
-                newText = arrow + ' ' + selectedText;
-            } else {
-                // If no text is selected, just insert the arrow
-                newText = arrow;
-            }
+            range.deleteContents();
 
-            this.postContent =
-                this.postContent.substring(0, start) +
-                newText +
-                this.postContent.substring(end);
+            const textNode = document.createTextNode(text);
+            range.insertNode(textNode);
 
-            this.updateFormattedContent();
+            // Move cursor after inserted text
+            range.setStartAfter(textNode);
+            range.setEndAfter(textNode);
+            selection.removeAllRanges();
+            selection.addRange(range);
 
-            // Hide arrow picker after selection
-            this.showArrowPicker = false;
+            this.updateContent();
+        },
 
-            // Focus back on the textarea
-            this.$nextTick(() => {
-                textarea.focus();
-                textarea.setSelectionRange(
-                    start + newText.length,
-                    start + newText.length
-                );
+        // Handle paste event to preserve formatting
+        handlePaste(e) {
+            // Let the browser handle the paste with formatting
+            setTimeout(() => {
+                this.updateContent();
+                this.ensureLinkedInCompatibleFormatting();
+            }, 0);
+        },
+
+        // Ensure formatting is LinkedIn compatible
+        ensureLinkedInCompatibleFormatting() {
+            const editor = this.$refs.editor;
+
+            // Convert <i> to <em> for better LinkedIn compatibility
+            const italicElements = editor.querySelectorAll('i');
+            italicElements.forEach(el => {
+                const em = document.createElement('em');
+                em.innerHTML = el.innerHTML;
+                el.parentNode.replaceChild(em, el);
             });
+
+            // Ensure underlines use <u> tag instead of text-decoration
+            const styledElements = editor.querySelectorAll('[style*="text-decoration: underline"]');
+            styledElements.forEach(el => {
+                const u = document.createElement('u');
+                u.innerHTML = el.innerHTML;
+                el.parentNode.replaceChild(u, el);
+            });
+
+            this.updateContent();
         },
 
         // Apply selected template
@@ -263,48 +205,94 @@ Share your thoughts in the comments below!
                 const template = this.templates[this.selectedTemplate];
 
                 // Confirm if there's existing content
-                if (this.postContent.trim() !== '') {
+                if (this.$refs.editor.textContent.trim() !== '') {
                     if (!confirm('This will replace your current content. Continue?')) {
                         this.selectedTemplate = '';
                         return;
                     }
                 }
 
-                this.postContent = template.content;
-                this.updateFormattedContent();
+                // Set the template content
+                this.$refs.editor.innerHTML = template.content.replace(/\n/g, '<br>');
+                this.updateContent();
                 this.selectedTemplate = '';
             }
         },
 
         // Clear the content
         clearContent() {
-            if (this.postContent.trim() !== '' &&
+            if (this.$refs.editor.textContent.trim() !== '' &&
                 confirm('Are you sure you want to clear all content?')) {
-                this.postContent = '';
-                this.updateFormattedContent();
+                this.$refs.editor.innerHTML = '';
+                this.updateContent();
             }
         },
 
         // Copy formatted content to clipboard
         copyToClipboard() {
-            // Use the original text content, not the HTML
-            navigator.clipboard.writeText(this.postContent)
-                .then(() => {
+            // First ensure formatting is LinkedIn compatible
+            this.ensureLinkedInCompatibleFormatting();
+
+            // Create a temporary element to hold the HTML content
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = this.editorContent;
+
+            // Append to body (required for some browsers)
+            document.body.appendChild(tempDiv);
+
+            // Select the content
+            const range = document.createRange();
+            range.selectNodeContents(tempDiv);
+
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+
+            // Execute copy command
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
                     this.copySuccess = true;
                     setTimeout(() => {
                         this.copySuccess = false;
                     }, 2000);
-                })
-                .catch(err => {
-                    console.error('Failed to copy: ', err);
+                } else {
+                    console.error('Copy command was unsuccessful');
                     alert('Failed to copy to clipboard. Please try again.');
-                });
+                }
+            } catch (err) {
+                console.error('Failed to copy: ', err);
+                alert('Failed to copy to clipboard. Please try again.');
+            }
+
+            // Clean up
+            selection.removeAllRanges();
+            document.body.removeChild(tempDiv);
         }
     },
 
     mounted() {
-        // Initialize the formatted content
-        this.updateFormattedContent();
+        // Focus the editor when the app is mounted
+        this.$nextTick(() => {
+            this.$refs.editor.focus();
+
+            // Add event listener for selection changes to update active formats
+            document.addEventListener('selectionchange', () => {
+                if (document.activeElement === this.$refs.editor) {
+                    this.checkActiveFormats();
+                }
+            });
+
+            // Add keyup event listener to check formats
+            this.$refs.editor.addEventListener('keyup', () => {
+                this.checkActiveFormats();
+            });
+
+            // Add mouseup event listener to check formats
+            this.$refs.editor.addEventListener('mouseup', () => {
+                this.checkActiveFormats();
+            });
+        });
     }
 });
 
