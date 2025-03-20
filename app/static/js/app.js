@@ -21,6 +21,21 @@ const app = Vue.createApp({
                 '😊', '🙌', '👉', '🌟', '📢', '🔔', '📌', '🎉'
             ],
 
+            // Arrow symbols
+            arrows: [
+                // Right arrows
+                '→', '⟶', '⇒', '⇨', '⟹', '➔', '➜', '➙', '➛', '➝', '➞', '➟', '➠', '➡', '➢', '➣', '➤', '➥', '➦', '➧', '➨',
+                // Down arrows
+                '↓', '⟱', '⇓', '⬇️', '⇩', '⇣', '⤓', '⥥', '⬦', '⏬', '⯆', '⯯',
+                // Up arrows
+                '↑', '⟰', '⇑', '⬆️', '⇧', '⇞', '⤒', '⥣', '⏫', '⯅', '⯭',
+                // Left arrows
+                '←', '⟵', '⇐', '⇦', '⟸', '⬅️',
+                // Bidirectional arrows
+                '↔', '↕', '⟷', '⇔', '⇕', '⟺', '⬄', '⬍'
+            ],
+            showArrowPicker: false,
+
             // Post templates
             templates: [
                 {
@@ -143,6 +158,18 @@ Share your thoughts in the comments below!
 
             // Hide emoji picker after selection
             this.showEmojiPicker = false;
+
+            // Focus back on the editor
+            this.$refs.editor.focus();
+        },
+
+        // Insert arrow at cursor position
+        insertArrow(arrow) {
+            // Insert at cursor position
+            this.insertTextAtCursor(arrow);
+
+            // Keep arrow picker open (don't hide it)
+            // this.showArrowPicker = false;
 
             // Focus back on the editor
             this.$refs.editor.focus();

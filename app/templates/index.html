@@ -1,22 +1,67 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-US">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LinkedIn Post Formatter</title>
+
+    <!-- Font preloading for better performance -->
+    <link rel="preload" as="font"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/fontawesome-webfont.woff2?v=4.7.0"
+        crossorigin>
+    <link rel="preload" as="font" href="https://code.ionicframework.com/ionicons/2.0.1/fonts/ionicons.ttf?v=2.0.1"
+        crossorigin>
+    <link rel="preload" as="font" href="https://fonts.gstatic.com/s/firasans/v17/va9C4kDNxMZdWfMOD5VvkrjJYTI.woff2"
+        crossorigin>
+    <link rel="preload" as="font" href="https://fonts.gstatic.com/s/firasans/v17/va9E4kDNxMZdWfMOD5Vvl4jL.woff2"
+        crossorigin>
+    <link rel="preload" as="font" href="https://fonts.gstatic.com/s/firasans/v17/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2"
+        crossorigin>
+    <link rel="preload" as="font" href="https://fonts.gstatic.com/s/firasans/v17/va9B4kDNxMZdWfMOD5VnLK3eRhf6.woff2"
+        crossorigin>
+    <link rel="preload" as="font"
+        href="https://fonts.gstatic.com/s/roboto/v47/KFO5CnqEu92Fr1Mu53ZEC9_Vu3r1gIhOszmkBnka.woff2" crossorigin>
+    <link rel="preload" as="font"
+        href="https://fonts.gstatic.com/s/roboto/v47/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMawCUBGEe.woff2" crossorigin>
+    <link rel="preload" as="font"
+        href="https://fonts.gstatic.com/s/roboto/v47/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBA.woff2" crossorigin>
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <!-- Vue.js -->
-    <script src="https://cdn.jsdelivr.net/npm/vue@3.3.4/dist/vue.global.js"></script>
+
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
+
+    <!-- Google Fonts with proper font-display settings -->
     <link
-        href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Open+Sans:wght@400;700&family=Lato:wght@400;700&family=Montserrat:wght@400;700&family=Helvetica:wght@400;700&family=Arial:wght@400;700&family=Times+New+Roman:wght@400;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Fira+Sans:wght@400;500;700&display=swap"
         rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!-- Vue.js -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.3.4/dist/vue.global.js"></script>
+
+    <!-- Font loading optimization script -->
+    <script>
+        // This helps with font loading optimization
+        document.documentElement.className = document.documentElement.className.replace('no-js', 'js');
+
+        // Font loading optimization
+        if ("fonts" in document) {
+            // Optimization for Cumulative Layout Shift
+            Promise.all([
+                document.fonts.load('400 1em Roboto'),
+                document.fonts.load('700 1em Roboto'),
+                document.fonts.load('400 1em "Fira Sans"'),
+                document.fonts.load('700 1em "Fira Sans"')
+            ]).then(() => {
+                document.documentElement.classList.add('fonts-loaded');
+            });
+        }
+    </script>
 </head>
 
 <body>
@@ -86,6 +131,10 @@
                                             class="btn btn-outline-primary" title="Emoji">
                                             <i class="far fa-smile"></i>
                                         </button>
+                                        <button @click="showArrowPicker = !showArrowPicker" type="button"
+                                            class="btn btn-outline-primary" title="Insert Arrow">
+                                            <i class="fas fa-arrow-right"></i>
+                                        </button>
                                         <button @click="clearContent" type="button" class="btn btn-outline-danger"
                                             title="Clear">
                                             <i class="fas fa-trash-alt"></i>
@@ -120,6 +169,63 @@
                                             class="btn btn-sm btn-light m-1">
                                             {% raw %}{{ emoji }}{% endraw %}
                                         </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Arrow Picker with Categories -->
+                            <div v-if="showArrowPicker" class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span>Select an Arrow</span>
+                                        <button @click="showArrowPicker = false" class="btn btn-sm btn-close"></button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="arrow-category mb-2">
+                                        <div class="arrow-category-label mb-1">Right Arrows</div>
+                                        <div class="d-flex flex-wrap">
+                                            <button v-for="arrow in arrows.slice(0, 21)" @click="insertArrow(arrow)"
+                                                class="btn btn-sm btn-light m-1">
+                                                {% raw %}{{ arrow }}{% endraw %}
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="arrow-category mb-2">
+                                        <div class="arrow-category-label mb-1">Down Arrows</div>
+                                        <div class="d-flex flex-wrap">
+                                            <button v-for="arrow in arrows.slice(21, 33)" @click="insertArrow(arrow)"
+                                                class="btn btn-sm btn-light m-1">
+                                                {% raw %}{{ arrow }}{% endraw %}
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="arrow-category mb-2">
+                                        <div class="arrow-category-label mb-1">Up Arrows</div>
+                                        <div class="d-flex flex-wrap">
+                                            <button v-for="arrow in arrows.slice(33, 44)" @click="insertArrow(arrow)"
+                                                class="btn btn-sm btn-light m-1">
+                                                {% raw %}{{ arrow }}{% endraw %}
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="arrow-category mb-2">
+                                        <div class="arrow-category-label mb-1">Left Arrows</div>
+                                        <div class="d-flex flex-wrap">
+                                            <button v-for="arrow in arrows.slice(44, 50)" @click="insertArrow(arrow)"
+                                                class="btn btn-sm btn-light m-1">
+                                                {% raw %}{{ arrow }}{% endraw %}
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="arrow-category">
+                                        <div class="arrow-category-label mb-1">Bidirectional Arrows</div>
+                                        <div class="d-flex flex-wrap">
+                                            <button v-for="arrow in arrows.slice(50)" @click="insertArrow(arrow)"
+                                                class="btn btn-sm btn-light m-1">
+                                                {% raw %}{{ arrow }}{% endraw %}
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
