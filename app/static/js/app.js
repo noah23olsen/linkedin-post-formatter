@@ -237,10 +237,25 @@ const app = Vue.createApp({
 
         // Handle paste event to preserve formatting
         handlePaste(e) {
-            // Let the browser handle the paste with formatting
+            // Prevent the default paste behavior
+            e.preventDefault();
+
+            // Get clipboard data
+            const clipboardData = e.clipboardData || window.clipboardData;
+            let pastedData = clipboardData.getData('text/html') || clipboardData.getData('text');
+
+            // Insert the text at the cursor position
+            // If HTML, we'll insert it and then apply our formatting conversion
+            if (document.queryCommandSupported('insertHTML') && clipboardData.getData('text/html')) {
+                document.execCommand('insertHTML', false, pastedData);
+            } else {
+                document.execCommand('insertText', false, pastedData);
+            }
+
+            // Apply our formatting conversion immediately
             setTimeout(() => {
-                this.updateContent();
                 this.ensureLinkedInCompatibleFormatting();
+                this.updateContent();
             }, 0);
         },
 
@@ -248,25 +263,39 @@ const app = Vue.createApp({
         ensureLinkedInCompatibleFormatting() {
             const editor = this.$refs.editor;
 
-            // Convert <i> to <em> for better LinkedIn compatibility
-            const italicElements = editor.querySelectorAll('i');
+            // Convert <i> and <em> elements to proper LinkedIn Unicode italic characters
+            const italicElements = editor.querySelectorAll('i, em');
             italicElements.forEach(el => {
-                const em = document.createElement('em');
-                em.innerHTML = el.innerHTML;
-                el.parentNode.replaceChild(em, el);
+                // Get the text content of the italic element
+                const text = el.textContent;
+                // Convert to custom Unicode italic format
+                const italicText = this.convertToItalicUnicode(text);
+                // Create a new text node with the formatted text
+                const textNode = document.createTextNode(italicText);
+                // Replace the element with the text node
+                el.parentNode.replaceChild(textNode, el);
             });
 
-            // Ensure underlines use <u> tag instead of text-decoration
-            const styledElements = editor.querySelectorAll('[style*="text-decoration: underline"]');
-            styledElements.forEach(el => {
-                const u = document.createElement('u');
-                u.innerHTML = el.innerHTML;
-                el.parentNode.replaceChild(u, el);
+            // Convert <b> and <strong> elements to proper LinkedIn Unicode bold characters
+            const boldElements = editor.querySelectorAll('b, strong');
+            boldElements.forEach(el => {
+                const text = el.textContent;
+                const boldText = this.convertToBoldUnicode(text);
+                const textNode = document.createTextNode(boldText);
+                el.parentNode.replaceChild(textNode, el);
+            });
+
+            // Convert <u> elements and inline styled underline to proper Unicode underline
+            const underlineElements = editor.querySelectorAll('u, [style*="text-decoration: underline"], [style*="text-decoration:underline"]');
+            underlineElements.forEach(el => {
+                const text = el.textContent;
+                const underlineText = this.convertToUnderlineUnicode(text);
+                const textNode = document.createTextNode(underlineText);
+                el.parentNode.replaceChild(textNode, el);
             });
 
             this.updateContent();
         },
-
 
         // Clear the content
         clearContent() {
@@ -432,6 +461,27 @@ const app = Vue.createApp({
             // Add mouseup event listener to check formats
             this.$refs.editor.addEventListener('mouseup', () => {
                 this.checkActiveFormats();
+            });
+
+            // Intercept keyboard shortcuts for formatting
+            this.$refs.editor.addEventListener('keydown', (e) => {
+                // Check for Ctrl/Cmd key combinations
+                if (e.ctrlKey || e.metaKey) {
+                    // Handle common formatting shortcuts
+                    if (e.key === 'b' || e.key === 'B') {
+                        // Bold (Ctrl+B)
+                        e.preventDefault();
+                        this.execCommand('bold');
+                    } else if (e.key === 'i' || e.key === 'I') {
+                        // Italic (Ctrl+I)
+                        e.preventDefault();
+                        this.execCommand('italic');
+                    } else if (e.key === 'u' || e.key === 'U') {
+                        // Underline (Ctrl+U)
+                        e.preventDefault();
+                        this.execCommand('underline');
+                    }
+                }
             });
         });
     }
