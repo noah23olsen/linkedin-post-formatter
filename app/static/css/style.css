@@ -98,6 +98,17 @@ h6 {
     white-space: pre-wrap;
     word-break: break-word;
     font-family: var(--font-primary);
+    position: relative;
+}
+
+/* Editor placeholder text */
+.rich-text-editor:empty:before {
+    content: attr(data-placeholder);
+    color: #6c757d;
+    pointer-events: none;
+    position: absolute;
+    top: 10px;
+    left: 10px;
 }
 
 .rich-text-editor:focus {

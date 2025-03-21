@@ -147,7 +147,8 @@
                                 <!-- Rich Text Editor -->
                                 <div ref="editor" contenteditable="true" class="form-control rich-text-editor"
                                     @input="updateContent" @keyup="updateCharCount" @paste="handlePaste"
-                                    style="min-height: 200px; overflow-y: auto;"></div>
+                                    style="min-height: 200px; overflow-y: auto;"
+                                    data-placeholder="Share your insights, ideas, or achievements..."></div>
 
                                 <div class="d-flex justify-content-between mt-2">
                                     <small class="text-muted">Characters: {% raw %}{{ characterCount }}{% endraw
@@ -257,18 +258,21 @@
                                                 class="fas fa-globe-americas"></i></small>
                                     </div>
                                 </div>
-                                <div class="formatted-content mb-3 bg-white p-2 rounded" v-html="editorContent"></div>
+                                <div class="formatted-content mb-3 bg-white p-2 rounded" v-html="displayContent"></div>
 
                                 <!-- Engagement metrics -->
                                 <div class="d-flex justify-content-between align-items-center mb-2 py-1">
-                                    <div>
-                                        <span class="me-1">
-                                            <i class="fas fa-thumbs-up text-primary"
-                                                style="font-size: 0.8rem; background-color: #0a66c2; color: white; padding: 3px; border-radius: 50%;"></i>
-                                            <i class="fas fa-heart text-danger"
-                                                style="font-size: 0.8rem; background-color: #e83e8c; color: white; padding: 3px; border-radius: 50%; margin-left: -5px;"></i>
+                                    <div class="d-flex align-items-center">
+                                        <span>
+                                            <img src="{{ url_for('static', filename='like.svg') }}" alt="Like"
+                                                style="height: 16px; margin-right: -4px;">
+                                            <img src="{{ url_for('static', filename='love.svg') }}" alt="Love"
+                                                style="height: 16px; margin-right: -4px;">
+                                            <img src="{{ url_for('static', filename='insightful.svg') }}"
+                                                alt="Insightful" style="height: 16px;">
                                         </span>
-                                        <span class="text-muted ms-1" style="font-size: 0.9rem;">1347</span>
+                                        <span class="text-muted"
+                                            style="font-size: 0.9rem; margin-left: 4px;">1347</span>
                                     </div>
                                     <div class="text-muted" style="font-size: 0.9rem;">
                                         <span>247 comments • 56 reposts</span>
@@ -279,7 +283,9 @@
                                 <div class="d-flex justify-content-between pt-1 border-top">
                                     <button class="btn btn-sm text-muted border-0 flex-fill py-2 m-1"
                                         style="background-color: transparent; font-size: 0.9rem;">
-                                        <i class="far fa-thumbs-up me-1"></i> Like
+                                        <img src="{{ url_for('static', filename='like.svg') }}" alt="Like"
+                                            style="height: 16px; filter: grayscale(100%); opacity: 0.6;" class="me-1">
+                                        Like
                                     </button>
                                     <button class="btn btn-sm text-muted border-0 flex-fill py-2 m-1"
                                         style="background-color: transparent; font-size: 0.9rem;">

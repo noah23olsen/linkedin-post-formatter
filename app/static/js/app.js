@@ -38,6 +38,15 @@ const app = Vue.createApp({
         }
     },
 
+    computed: {
+        // Display content or placeholder if empty
+        displayContent() {
+            return this.editorContent.trim()
+                ? this.editorContent
+                : '<span class="text-muted">Share your insights, ideas, or achievements...</span>';
+        }
+    },
+
     methods: {
         // Update the content from the editor
         updateContent() {
