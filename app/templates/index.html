@@ -84,20 +84,40 @@
                                 <!-- Formatting Toolbar -->
                                 <div class="btn-toolbar mb-3" role="toolbar">
                                     <div class="btn-group me-2" role="group">
-                                        <button @click="execCommand('bold')" type="button" class="btn"
-                                            :class="{'btn-outline-primary': !activeFormats.bold, 'btn-primary': activeFormats.bold}"
+                                        <button type="button" class="btn btn-sm btn-outline-secondary"
+                                            :class="{ active: activeFormats.bold }" @click="execCommand('bold')"
                                             title="Bold">
                                             <i class="fas fa-bold"></i>
                                         </button>
-                                        <button @click="execCommand('italic')" type="button" class="btn"
-                                            :class="{'btn-outline-primary': !activeFormats.italic, 'btn-primary': activeFormats.italic}"
+                                        <button type="button" class="btn btn-sm btn-outline-secondary"
+                                            :class="{ active: activeFormats.italic }" @click="execCommand('italic')"
                                             title="Italic">
                                             <i class="fas fa-italic"></i>
                                         </button>
-                                        <button @click="execCommand('underline')" type="button" class="btn"
-                                            :class="{'btn-outline-primary': !activeFormats.underline, 'btn-primary': activeFormats.underline}"
-                                            title="Underline">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary"
+                                            :class="{ active: activeFormats.underline }"
+                                            @click="execCommand('underline')" title="Underline">
                                             <i class="fas fa-underline"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary"
+                                            @click="execCommand('bolditalic')" title="Bold Italic">
+                                            <i class="fas fa-bold"></i><i class="fas fa-italic"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary"
+                                            @click="execCommand('strikethrough')" title="Strikethrough">
+                                            <i class="fas fa-strikethrough"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary"
+                                            @click="execCommand('boldunderline')" title="Bold Underline">
+                                            <i class="fas fa-bold"></i><i class="fas fa-underline"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary"
+                                            @click="execCommand('boldstrikethrough')" title="Bold Strikethrough">
+                                            <i class="fas fa-bold"></i><i class="fas fa-strikethrough"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary"
+                                            @click="execCommand('script')" title="Script">
+                                            <i class="fas fa-font"></i>
                                         </button>
                                     </div>
 
