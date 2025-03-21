@@ -122,20 +122,6 @@
                                     </div>
 
                                     <div class="btn-group me-2" role="group">
-                                        <select @change="execCommandWithArg('fontName', $event.target.value)"
-                                            class="form-select" style="max-width: 150px;">
-                                            <option value="">Font Family</option>
-                                            <option value="Arial">Arial</option>
-                                            <option value="Helvetica">Helvetica</option>
-                                            <option value="Times New Roman">Times New Roman</option>
-                                            <option value="Courier New">Courier New</option>
-                                            <option value="Georgia">Georgia</option>
-                                            <option value="Verdana">Verdana</option>
-                                            <option value="Tahoma">Tahoma</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="btn-group me-2" role="group">
                                         <button @click="execCommand('insertUnorderedList')" type="button"
                                             class="btn btn-outline-primary" title="Bullet List">
                                             <i class="fas fa-list-ul"></i>
@@ -249,17 +235,6 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Templates -->
-                            <div class="mb-3">
-                                <label class="form-label">Templates</label>
-                                <select v-model="selectedTemplate" class="form-select" @change="applyTemplate">
-                                    <option value="">Select a template</option>
-                                    <option v-for="(template, index) in templates" :value="index">
-                                        {% raw %}{{ template.name }}{% endraw %}
-                                    </option>
-                                </select>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -278,8 +253,8 @@
                                         <i class="fas fa-user"></i>
                                     </div>
                                     <div>
-                                        <h6 class="mb-0">Your Name</h6>
-                                        <small class="text-muted">Your Title</small>
+                                        <h6 class="mb-0">noah olsen ⚡</h6>
+                                        <small class="text-muted">software engineer | builder | polymath</small>
                                     </div>
                                 </div>
                                 <div class="formatted-content" v-html="editorContent"></div>

@@ -35,61 +35,6 @@ const app = Vue.createApp({
                 '↔', '↕', '⟷', '⇔', '⇕', '⟺', '⬄', '⬍'
             ],
             showArrowPicker: false,
-
-            // Post templates
-            templates: [
-                {
-                    name: 'Professional Achievement',
-                    content: `🎉 Excited to share that I've [achievement]!
-
-✨ [Brief description of what this means]
-
-🙏 Thanks to [people or organizations to thank]
-
-#Hashtags #Relevant #Keywords`
-                },
-                {
-                    name: 'Industry Insight',
-                    content: `💡 INSIGHT: [Main insight or statistic]
-
-Here's what this means for [industry/professionals]:
-
-→ [Point 1]
-→ [Point 2]
-→ [Point 3]
-
-What's your take on this? Share your thoughts below!
-
-#Hashtags #Relevant #Keywords`
-                },
-                {
-                    name: 'Career Tip',
-                    content: `📌 CAREER TIP:
-
-[Main tip or advice]
-
-Why it matters:
-• [Reason 1]
-• [Reason 2]
-• [Reason 3]
-
-What career tips would you add to this list?
-
-#CareerAdvice #ProfessionalDevelopment`
-                },
-                {
-                    name: 'Question Post',
-                    content: `🤔 QUESTION:
-
-[Your thought-provoking question]
-
-I'm curious to hear different perspectives on this.
-
-Share your thoughts in the comments below!
-
-#Discussion #Networking #ProfessionalGrowth`
-                }
-            ]
         }
     },
 
@@ -322,25 +267,6 @@ Share your thoughts in the comments below!
             this.updateContent();
         },
 
-        // Apply selected template
-        applyTemplate() {
-            if (this.selectedTemplate !== '') {
-                const template = this.templates[this.selectedTemplate];
-
-                // Confirm if there's existing content
-                if (this.$refs.editor.textContent.trim() !== '') {
-                    if (!confirm('This will replace your current content. Continue?')) {
-                        this.selectedTemplate = '';
-                        return;
-                    }
-                }
-
-                // Set the template content
-                this.$refs.editor.innerHTML = template.content.replace(/\n/g, '<br>');
-                this.updateContent();
-                this.selectedTemplate = '';
-            }
-        },
 
         // Clear the content
         clearContent() {
