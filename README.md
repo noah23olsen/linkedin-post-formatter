@@ -51,6 +51,31 @@ python app.py
 5. Click "Copy to Clipboard" when you're satisfied
 6. Paste directly into LinkedIn
 
+## Deployment
+
+### Deploying to Render
+
+This application is ready to be deployed on [Render](https://render.com).
+
+1. Fork or clone this repository to your GitHub account
+2. Sign in to Render and create a new Web Service
+3. Connect your GitHub repository
+4. Use the following settings:
+   - **Name**: Your choice (e.g., linkedin-post-formatter)
+   - **Environment**: Python
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `gunicorn wsgi:app`
+5. Click "Create Web Service" and Render will deploy your application
+
+Alternatively, you can use the included `render.yaml` for [Blueprint deployment](https://render.com/docs/blueprint-spec):
+
+1. Fork this repository
+2. Create a new Blueprint instance on Render
+3. Connect your forked repository
+4. Render will automatically deploy your services as defined in the YAML
+
+The application will be accessible at the URL provided by Render once deployment is complete.
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.

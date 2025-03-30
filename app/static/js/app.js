@@ -75,11 +75,31 @@ const app = Vue.createApp({
             if (selection.rangeCount === 0) return;
 
             const range = selection.getRangeAt(0);
-            if (range.collapsed) return; // No text selected
+
+            // Special handling for lists when no text is selected
+            if ((command === 'insertUnorderedList' || command === 'insertOrderedList') && range.collapsed) {
+                // Insert a space character if the range is collapsed (no text selected)
+                this.insertTextAtCursor('List item');
+
+                // Re-get selection and range
+                const newSelection = window.getSelection();
+                const newRange = newSelection.getRangeAt(0);
+
+                // Select the inserted text
+                newRange.setStart(newRange.startContainer, newRange.startOffset - 9);
+                newSelection.removeAllRanges();
+                newSelection.addRange(newRange);
+            }
+
+            if (range.collapsed &&
+                command !== 'insertUnorderedList' &&
+                command !== 'insertOrderedList') return; // No text selected for other commands
 
             // Get the selected text
             const selectedText = range.toString();
-            if (!selectedText) return;
+            if (!selectedText &&
+                command !== 'insertUnorderedList' &&
+                command !== 'insertOrderedList') return;
 
             let formattedText = '';
 
@@ -301,6 +321,48 @@ const app = Vue.createApp({
                 const underlineText = this.convertToUnderlineUnicode(text);
                 const textNode = document.createTextNode(underlineText);
                 el.parentNode.replaceChild(textNode, el);
+            });
+
+            // Convert bullet lists to LinkedIn-compatible format
+            const ulElements = editor.querySelectorAll('ul');
+            ulElements.forEach(ul => {
+                const listItems = ul.querySelectorAll('li');
+                const fragment = document.createDocumentFragment();
+
+                listItems.forEach((li, index) => {
+                    // Create bullet point text
+                    const bulletText = document.createTextNode('• ' + li.textContent);
+                    fragment.appendChild(bulletText);
+
+                    // Add line break if not the last item
+                    if (index < listItems.length - 1) {
+                        fragment.appendChild(document.createElement('br'));
+                    }
+                });
+
+                // Replace the ul with our custom format
+                ul.parentNode.replaceChild(fragment, ul);
+            });
+
+            // Convert numbered lists to LinkedIn-compatible format
+            const olElements = editor.querySelectorAll('ol');
+            olElements.forEach(ol => {
+                const listItems = ol.querySelectorAll('li');
+                const fragment = document.createDocumentFragment();
+
+                listItems.forEach((li, index) => {
+                    // Create numbered item text (1., 2., etc.)
+                    const numberText = document.createTextNode(`${index + 1}. ${li.textContent}`);
+                    fragment.appendChild(numberText);
+
+                    // Add line break if not the last item
+                    if (index < listItems.length - 1) {
+                        fragment.appendChild(document.createElement('br'));
+                    }
+                });
+
+                // Replace the ol with our custom format
+                ol.parentNode.replaceChild(fragment, ol);
             });
 
             this.updateContent();
