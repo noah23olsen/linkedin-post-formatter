@@ -82,7 +82,7 @@
                         <div class="card-body">
                             <div class="mb-3">
                                 <!-- Formatting Toolbar -->
-                                <div class="btn-toolbar mb-3" role="toolbar">
+                                <div class="btn-toolbar mb-3 position-relative" role="toolbar">
                                     <div class="btn-group me-2" role="group">
                                         <button type="button" class="btn btn-sm btn-outline-secondary"
                                             :class="{ active: activeFormats.bold }" @click="execCommand('bold')"
@@ -104,16 +104,8 @@
                                             <i class="fas fa-bold"></i><i class="fas fa-italic"></i>
                                         </button>
                                         <button type="button" class="btn btn-sm btn-outline-secondary"
-                                            @click="execCommand('strikethrough')" title="Strikethrough">
-                                            <i class="fas fa-strikethrough"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-sm btn-outline-secondary"
                                             @click="execCommand('boldunderline')" title="Bold Underline">
                                             <i class="fas fa-bold"></i><i class="fas fa-underline"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-sm btn-outline-secondary"
-                                            @click="execCommand('boldstrikethrough')" title="Bold Strikethrough">
-                                            <i class="fas fa-bold"></i><i class="fas fa-strikethrough"></i>
                                         </button>
                                     </div>
 
@@ -129,18 +121,62 @@
                                     </div>
 
                                     <div class="btn-group" role="group">
-                                        <button @click="showEmojiPicker = !showEmojiPicker" type="button"
-                                            class="btn btn-outline-primary" title="Emoji">
+                                        <button id="emojiBtn" @click="toggleEmojiPicker" type="button"
+                                            class="btn btn-outline-primary position-relative" title="Emoji">
                                             <i class="far fa-smile"></i>
                                         </button>
-                                        <button @click="showArrowPicker = !showArrowPicker" type="button"
-                                            class="btn btn-outline-primary" title="Insert Arrow">
+                                        <button id="arrowBtn" @click="toggleArrowPicker" type="button"
+                                            class="btn btn-outline-primary position-relative" title="Insert Arrow">
                                             <i class="fas fa-arrow-right"></i>
                                         </button>
                                         <button @click="clearContent" type="button" class="btn btn-outline-danger"
                                             title="Clear">
                                             <i class="fas fa-trash-alt"></i>
                                         </button>
+                                    </div>
+
+                                    <!-- Emoji Picker (compact, floating) -->
+                                    <div v-if="showEmojiPicker" class="picker-popup emoji-picker-popup">
+                                        <div class="card shadow-sm" style="width: 250px;">
+                                            <div class="card-header bg-light py-1 px-2">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span class="small">Quick Emoji</span>
+                                                    <button @click="showEmojiPicker = false"
+                                                        class="btn btn-sm btn-close"></button>
+                                                </div>
+                                            </div>
+                                            <div class="card-body p-1">
+                                                <div class="d-flex flex-wrap justify-content-center">
+                                                    <button v-for="emoji in commonEmojis" @click="insertEmoji(emoji)"
+                                                        class="btn btn-sm btn-light m-1"
+                                                        style="font-size: 1.1rem; width: 32px; height: 32px; padding: 0;">
+                                                        {% raw %}{{ emoji }}{% endraw %}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Arrow Picker (compact, floating) -->
+                                    <div v-if="showArrowPicker" class="picker-popup arrow-picker-popup">
+                                        <div class="card shadow-sm" style="width: 180px;">
+                                            <div class="card-header bg-light py-1 px-2">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span class="small">Arrows</span>
+                                                    <button @click="showArrowPicker = false"
+                                                        class="btn btn-sm btn-close"></button>
+                                                </div>
+                                            </div>
+                                            <div class="card-body p-1">
+                                                <div class="d-flex flex-wrap justify-content-center">
+                                                    <button v-for="arrow in arrows" @click="insertArrow(arrow)"
+                                                        class="btn btn-sm btn-light m-1"
+                                                        style="font-size: 1.1rem; width: 32px; height: 32px; padding: 0;">
+                                                        {% raw %}{{ arrow }}{% endraw %}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -158,80 +194,34 @@
                                 </div>
                             </div>
 
-                            <!-- Emoji Picker (simplified for now) -->
-                            <div v-if="showEmojiPicker" class="card mb-3">
-                                <div class="card-header bg-light">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span>Select an Emoji</span>
-                                        <button @click="showEmojiPicker = false" class="btn btn-sm btn-close"></button>
-                                    </div>
-                                </div>
-                                <div class="card-body">
-                                    <div class="d-flex flex-wrap">
-                                        <button v-for="emoji in commonEmojis" @click="insertEmoji(emoji)"
-                                            class="btn btn-sm btn-light m-1">
-                                            {% raw %}{{ emoji }}{% endraw %}
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
+                            <!-- CSS for floating pickers -->
+                            <style>
+                                .position-relative {
+                                    position: relative;
+                                }
 
-                            <!-- Arrow Picker with Categories -->
-                            <div v-if="showArrowPicker" class="card mb-3">
-                                <div class="card-header bg-light">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span>Select an Arrow</span>
-                                        <button @click="showArrowPicker = false" class="btn btn-sm btn-close"></button>
-                                    </div>
-                                </div>
-                                <div class="card-body">
-                                    <div class="arrow-category mb-2">
-                                        <div class="arrow-category-label mb-1">Right Arrows</div>
-                                        <div class="d-flex flex-wrap">
-                                            <button v-for="arrow in arrows.slice(0, 21)" @click="insertArrow(arrow)"
-                                                class="btn btn-sm btn-light m-1">
-                                                {% raw %}{{ arrow }}{% endraw %}
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="arrow-category mb-2">
-                                        <div class="arrow-category-label mb-1">Down Arrows</div>
-                                        <div class="d-flex flex-wrap">
-                                            <button v-for="arrow in arrows.slice(21, 33)" @click="insertArrow(arrow)"
-                                                class="btn btn-sm btn-light m-1">
-                                                {% raw %}{{ arrow }}{% endraw %}
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="arrow-category mb-2">
-                                        <div class="arrow-category-label mb-1">Up Arrows</div>
-                                        <div class="d-flex flex-wrap">
-                                            <button v-for="arrow in arrows.slice(33, 44)" @click="insertArrow(arrow)"
-                                                class="btn btn-sm btn-light m-1">
-                                                {% raw %}{{ arrow }}{% endraw %}
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="arrow-category mb-2">
-                                        <div class="arrow-category-label mb-1">Left Arrows</div>
-                                        <div class="d-flex flex-wrap">
-                                            <button v-for="arrow in arrows.slice(44, 50)" @click="insertArrow(arrow)"
-                                                class="btn btn-sm btn-light m-1">
-                                                {% raw %}{{ arrow }}{% endraw %}
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="arrow-category">
-                                        <div class="arrow-category-label mb-1">Bidirectional Arrows</div>
-                                        <div class="d-flex flex-wrap">
-                                            <button v-for="arrow in arrows.slice(50)" @click="insertArrow(arrow)"
-                                                class="btn btn-sm btn-light m-1">
-                                                {% raw %}{{ arrow }}{% endraw %}
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                                .picker-popup {
+                                    position: absolute;
+                                    z-index: 1000;
+                                    top: 100%;
+                                    margin-top: 5px;
+                                }
+
+                                .emoji-picker-popup {
+                                    left: 50%;
+                                    transform: translateX(-50%);
+                                }
+
+                                .arrow-picker-popup {
+                                    right: 30px;
+                                }
+
+                                /* Remove old pickers */
+                                #emojiPicker,
+                                #arrowPicker {
+                                    display: none;
+                                }
+                            </style>
                         </div>
                     </div>
                 </div>

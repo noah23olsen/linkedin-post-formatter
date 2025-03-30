@@ -45,8 +45,8 @@
 
 /* Base styles */
 body {
-    background-color: #f8f9fa;
-    font-family: var(--font-primary);
+    background-color: #f9f9f9;
+    font-family: 'Roboto', sans-serif;
     font-display: swap;
 }
 
@@ -67,15 +67,15 @@ h6 {
 }
 
 .linkedin-preview {
-    background-color: white;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    min-height: 200px;
-    font-family: var(--font-primary);
+    background-color: #f3f2ef;
+    border-radius: 8px;
+    font-family: 'Fira Sans', sans-serif;
 }
 
 .formatted-content {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
     white-space: pre-wrap;
-    word-break: break-word;
     line-height: 1.5;
     font-family: var(--font-primary);
 }
@@ -86,7 +86,7 @@ h6 {
 
 /* Rich Text Editor Styles */
 .rich-text-editor {
-    min-height: 200px;
+    min-height: 150px;
     padding: 10px;
     border: 1px solid #ced4da;
     border-radius: 0.25rem;
@@ -97,14 +97,14 @@ h6 {
     overflow-y: auto;
     white-space: pre-wrap;
     word-break: break-word;
-    font-family: var(--font-primary);
+    font-family: 'Fira Sans', sans-serif;
     position: relative;
 }
 
 /* Editor placeholder text */
 .rich-text-editor:empty:before {
     content: attr(data-placeholder);
-    color: #6c757d;
+    color: #aaa;
     pointer-events: none;
     position: absolute;
     top: 10px;
@@ -217,5 +217,62 @@ h6 {
 @media (max-width: 768px) {
     .btn-toolbar .btn-group {
         margin-bottom: 0.5rem;
+    }
+}
+
+/* Picker styles */
+.picker-popup {
+    position: absolute;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+.emoji-picker-popup {
+    left: auto;
+}
+
+.arrow-picker-popup {
+    right: 0;
+}
+
+.picker-popup .card {
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.picker-popup .card-header {
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    background-color: #f8f9fa;
+}
+
+.picker-popup .btn-close {
+    padding: 2px;
+    font-size: 0.7rem;
+}
+
+.picker-popup .btn-light {
+    border: none;
+    background-color: transparent;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.picker-popup .btn-light:hover {
+    background-color: #f0f0f0;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }

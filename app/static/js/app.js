@@ -21,18 +21,12 @@ const app = Vue.createApp({
                 '😊', '🙌', '👉', '🌟', '📢', '🔔', '📌', '🎉'
             ],
 
-            // Arrow symbols
+            // Arrow symbols - simplified to 3 per direction
             arrows: [
-                // Right arrows
-                '→', '⟶', '⇒', '⇨', '⟹', '➔', '➜', '➙', '➛', '➝', '➞', '➟', '➠', '➡', '➢', '➣', '➤', '➥', '➦', '➧', '➨',
-                // Down arrows
-                '↓', '⟱', '⇓', '⬇️', '⇩', '⇣', '⤓', '⥥', '⬦', '⏬', '⯆', '⯯',
-                // Up arrows
-                '↑', '⟰', '⇑', '⬆️', '⇧', '⇞', '⤒', '⥣', '⏫', '⯅', '⯭',
-                // Left arrows
-                '←', '⟵', '⇐', '⇦', '⟸', '⬅️',
-                // Bidirectional arrows
-                '↔', '↕', '⟷', '⇔', '⇕', '⟺', '⬄', '⬍'
+                '→',
+                '↓',
+                '↑',
+                '←',
             ],
             showArrowPicker: false,
         }
@@ -78,17 +72,27 @@ const app = Vue.createApp({
 
             // Special handling for lists when no text is selected
             if ((command === 'insertUnorderedList' || command === 'insertOrderedList') && range.collapsed) {
-                // Insert a space character if the range is collapsed (no text selected)
-                this.insertTextAtCursor('List item');
+                // First check if we're already in a list item to avoid double bullets
+                let currentNode = range.startContainer;
+                let isInListItem = false;
 
-                // Re-get selection and range
-                const newSelection = window.getSelection();
-                const newRange = newSelection.getRangeAt(0);
+                // Traverse up to find if we're inside a list item
+                while (currentNode && currentNode !== this.$refs.editor) {
+                    if (currentNode.nodeName === 'LI' ||
+                        currentNode.parentNode && currentNode.parentNode.nodeName === 'LI') {
+                        isInListItem = true;
+                        break;
+                    }
+                    currentNode = currentNode.parentNode;
+                }
 
-                // Select the inserted text
-                newRange.setStart(newRange.startContainer, newRange.startOffset - 9);
-                newSelection.removeAllRanges();
-                newSelection.addRange(newRange);
+                if (!isInListItem) {
+                    // Only insert a blank list item placeholder if we're not already in a list
+                    document.execCommand(command, false, null);
+                    this.$refs.editor.focus();
+                    this.updateContent();
+                    return;
+                }
             }
 
             if (range.collapsed &&
@@ -226,8 +230,8 @@ const app = Vue.createApp({
             // Insert at cursor position
             this.insertTextAtCursor(emoji);
 
-            // Hide emoji picker after selection
-            this.showEmojiPicker = false;
+            // Keep emoji picker open after selection
+            // this.showEmojiPicker = false;
 
             // Focus back on the editor
             this.$refs.editor.focus();
@@ -509,7 +513,25 @@ const app = Vue.createApp({
             };
 
             return this.mapCharacters(text, scriptMap);
-        }
+        },
+
+        // Toggle emoji picker
+        toggleEmojiPicker(e) {
+            e.stopPropagation();
+            this.showEmojiPicker = !this.showEmojiPicker;
+            if (this.showEmojiPicker) {
+                this.showArrowPicker = false;
+            }
+        },
+
+        // Toggle arrow picker
+        toggleArrowPicker(e) {
+            e.stopPropagation();
+            this.showArrowPicker = !this.showArrowPicker;
+            if (this.showArrowPicker) {
+                this.showEmojiPicker = false;
+            }
+        },
     },
 
     mounted() {
@@ -534,7 +556,26 @@ const app = Vue.createApp({
                 this.checkActiveFormats();
             });
 
-            // Intercept keyboard shortcuts for formatting
+            // Close pickers when clicking outside of them
+            document.addEventListener('click', (e) => {
+                // For Emoji Picker
+                if (this.showEmojiPicker &&
+                    !e.target.closest('.emoji-picker-popup') &&
+                    e.target.id !== 'emojiBtn' &&
+                    !e.target.closest('#emojiBtn')) {
+                    this.showEmojiPicker = false;
+                }
+
+                // For Arrow Picker
+                if (this.showArrowPicker &&
+                    !e.target.closest('.arrow-picker-popup') &&
+                    e.target.id !== 'arrowBtn' &&
+                    !e.target.closest('#arrowBtn')) {
+                    this.showArrowPicker = false;
+                }
+            });
+
+            // Handle backspace in empty list items to prevent removing the line
             this.$refs.editor.addEventListener('keydown', (e) => {
                 // Check for Ctrl/Cmd key combinations
                 if (e.ctrlKey || e.metaKey) {
@@ -551,6 +592,43 @@ const app = Vue.createApp({
                         // Underline (Ctrl+U)
                         e.preventDefault();
                         this.execCommand('underline');
+                    }
+                } else if (e.key === 'Backspace') {
+                    // Get current selection
+                    const selection = window.getSelection();
+                    if (selection.rangeCount === 0) return;
+
+                    const range = selection.getRangeAt(0);
+                    if (!range.collapsed) return; // Only handle collapsed selection
+
+                    // Check if we're in an empty list item
+                    let node = range.startContainer;
+                    let listItem = null;
+
+                    // Find the closest list item parent
+                    while (node && node !== this.$refs.editor) {
+                        if (node.nodeName === 'LI') {
+                            listItem = node;
+                            break;
+                        }
+                        node = node.parentNode;
+                    }
+
+                    // If we're in an empty list item at the beginning
+                    if (listItem &&
+                        (listItem.textContent.trim() === '' ||
+                            range.startOffset === 0)) {
+                        e.preventDefault(); // Prevent default backspace behavior
+
+                        // Insert a line break instead of deleting the list item
+                        const br = document.createElement('br');
+                        listItem.parentNode.insertBefore(br, listItem);
+
+                        // Remove the empty list item
+                        listItem.parentNode.removeChild(listItem);
+
+                        // Update content
+                        this.updateContent();
                     }
                 }
             });
