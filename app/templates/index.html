@@ -124,7 +124,7 @@
   </head>
 
   <body>
-    <div id="app" class="container py-4">
+    <div id="app" class="container py-4" v-cloak>
       <header class="pb-3 mb-4 border-bottom">
         <h1 class="display-5 fw-bold text-primary">
           LinkedIn Post Formatter (BETA)
@@ -247,6 +247,7 @@
                     <!-- Emoji Picker (compact, floating) -->
                     <div
                       v-if="showEmojiPicker"
+                      v-cloak
                       class="picker-popup emoji-picker-popup"
                     >
                       <div class="card shadow-sm" style="width: 250px">
@@ -284,6 +285,7 @@
                     <!-- Arrow Picker (compact, floating) -->
                     <div
                       v-if="showArrowPicker"
+                      v-cloak
                       class="picker-popup arrow-picker-popup"
                     >
                       <div class="card shadow-sm" style="width: 180px">
@@ -344,6 +346,10 @@
 
                 <!-- CSS for floating pickers -->
                 <style>
+                  [v-cloak] {
+                    display: none;
+                  }
+
                   .position-relative {
                     position: relative;
                   }
